@@ -47,12 +47,13 @@ class JobCreateUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Job
         fields = [
-            'id', 'title', 'description', 'responsibilities',
+            'id', 'slug', 'title', 'description', 'responsibilities',
             'requirements', 'skills', 'experience_level',
             'employment_type', 'work_mode', 'location',
             'min_salary', 'max_salary', 'currency', 'status',
             'closing_date', 'is_featured'
         ]
+        read_only_fields = ['id', 'slug']
 
     def validate(self, attrs):
         min_sal = attrs.get('min_salary')

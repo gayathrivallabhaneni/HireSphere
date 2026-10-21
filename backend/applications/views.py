@@ -7,6 +7,7 @@ from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from django.db import transaction
 from django.shortcuts import get_object_or_404
+from django.http import Http404
 from django.db.models import Count, Q
 
 from .models import JobApplication, ApplicationStatusHistory, RecruiterNote
@@ -41,6 +42,7 @@ class CandidateApplyJobView(generics.CreateAPIView):
         return Response(
             {
                 "message": "Application submitted successfully!",
+                "id": application.id,
                 "application_id": application.id,
                 "status": application.status
             },
@@ -250,9 +252,24 @@ class RecruiterUpdateStatusView(APIView):
 class RecruiterNotesListCreateView(generics.ListCreateAPIView):
     """
     List and add private recruiter notes for an application.
+    Enforces strict company isolation on the application.
     """
     permission_classes = [IsRecruiter]
     serializer_class = RecruiterNoteSerializer
+
+    def get_application(self):
+        profile = getattr(self.request.user, 'recruiter_profile', None)
+        if not profile or not profile.company:
+            raise Http404("No company associated with this recruiter.")
+        return get_object_or_404(
+            JobApplication,
+            pk=self.kwargs['pk'],
+            job__company=profile.company
+        )
+
+    def get(self, request, *args, **kwargs):
+        self.get_application()
+        return super().get(request, *args, **kwargs)
 
     def get_queryset(self):
         profile = getattr(self.request.user, 'recruiter_profile', None)
@@ -265,9 +282,7 @@ class RecruiterNotesListCreateView(generics.ListCreateAPIView):
         ).select_related('recruiter')
 
     def perform_create(self, serializer):
-        profile = getattr(self.request.user, 'recruiter_profile', None)
-        app_id = self.kwargs['pk']
-        application = get_object_or_404(JobApplication, pk=app_id, job__company=profile.company)
+        application = self.get_application()
         serializer.save(application=application, recruiter=self.request.user)
 
 
