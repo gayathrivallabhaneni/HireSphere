@@ -2,6 +2,7 @@
 Serializers for Candidate profile and Resumes.
 """
 from rest_framework import serializers
+from drf_spectacular.utils import extend_schema_field
 from .models import CandidateProfile, Resume
 from accounts.serializers import UserSerializer
 
@@ -31,6 +32,7 @@ class ResumeSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ['id', 'original_filename', 'file_size', 'file_type', 'created_at', 'download_url']
 
+    @extend_schema_field(serializers.CharField)
     def get_download_url(self, obj):
         request = self.context.get('request')
         if request:

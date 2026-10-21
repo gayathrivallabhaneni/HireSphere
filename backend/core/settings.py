@@ -14,12 +14,30 @@ load_dotenv(BASE_DIR.parent / '.env')
 load_dotenv(BASE_DIR / '.env')
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-mv-job-portal-secret-key-prod-change-in-env-2026')
+DEFAULT_INSECURE_SECRET = 'django-insecure-mv-job-portal-secret-key-prod-change-in-env-2026'
+SECRET_KEY = os.getenv('SECRET_KEY', DEFAULT_INSECURE_SECRET)
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv('DEBUG', 'True').lower() in ('true', '1', 't')
+ENVIRONMENT = os.getenv('ENVIRONMENT', 'development').lower()
+DEBUG = os.getenv('DEBUG', 'False' if ENVIRONMENT == 'production' else 'True').lower() in ('true', '1', 't')
 
-ALLOWED_HOSTS = [host.strip() for host in os.getenv('ALLOWED_HOSTS', '*').split(',') if host.strip()]
+# Prevent insecure defaults in production
+if not DEBUG:
+    if SECRET_KEY == DEFAULT_INSECURE_SECRET or SECRET_KEY.startswith('django-insecure-'):
+        raise RuntimeError(
+            "CRITICAL SECURITY ERROR: Production deployment requires a secure, non-default SECRET_KEY. "
+            "Please configure the SECRET_KEY environment variable with a strong cryptographic key."
+        )
+
+# Parse allowed hosts
+raw_allowed_hosts = os.getenv('ALLOWED_HOSTS', '*' if DEBUG else 'localhost,127.0.0.1')
+ALLOWED_HOSTS = [host.strip() for host in raw_allowed_hosts.split(',') if host.strip()]
+
+if not DEBUG and ('*' in ALLOWED_HOSTS or not ALLOWED_HOSTS):
+    raise RuntimeError(
+        "CRITICAL SECURITY ERROR: ALLOWED_HOSTS cannot contain wildcard '*' when DEBUG is False. "
+        "Explicitly specify permitted production domains or IP addresses in ALLOWED_HOSTS."
+    )
 
 # Custom User Model
 AUTH_USER_MODEL = 'accounts.User'
@@ -52,6 +70,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -82,21 +101,51 @@ WSGI_APPLICATION = 'core.wsgi.application'
 ASGI_APPLICATION = 'core.asgi.application'
 
 # Database Configuration
-# Supports PostgreSQL with fallback to SQLite if DB_ENGINE is sqlite or if Postgres is not configured
-DB_ENGINE = os.getenv('DB_ENGINE', '')
+# Production strictly requires PostgreSQL; development falls back to SQLite
+DB_ENGINE = os.getenv('DB_ENGINE', '').lower()
+DATABASE_URL = os.getenv('DATABASE_URL', '')
 DB_NAME = os.getenv('DB_NAME', '')
 
-if DB_ENGINE == 'django.db.backends.postgresql' or os.getenv('DATABASE_URL') or (DB_NAME and DB_ENGINE != 'sqlite'):
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': os.getenv('DB_NAME', 'jobboard_db'),
-            'USER': os.getenv('DB_USER', 'jobboard_user'),
-            'PASSWORD': os.getenv('DB_PASSWORD', 'jobboard_secure_password_123!'),
-            'HOST': os.getenv('DB_HOST', 'localhost'),
-            'PORT': os.getenv('DB_PORT', '5432'),
+use_postgres = (
+    'postgres' in DB_ENGINE or
+    DATABASE_URL.startswith(('postgres://', 'postgresql://')) or
+    (bool(DB_NAME) and 'sqlite' not in DB_ENGINE and not DB_NAME.endswith('.sqlite3') and DB_NAME != ':memory:')
+)
+
+if not DEBUG and not use_postgres:
+    raise RuntimeError(
+        "CRITICAL DATABASE ERROR: Production deployment (DEBUG=False) strictly requires PostgreSQL. "
+        "Silent fallback to SQLite is disallowed. Please configure DB_ENGINE=django.db.backends.postgresql "
+        "or provide a valid DATABASE_URL."
+    )
+
+if use_postgres:
+    if DATABASE_URL:
+        from urllib.parse import urlparse
+        parsed_db_url = urlparse(DATABASE_URL)
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.postgresql',
+                'NAME': parsed_db_url.path.lstrip('/'),
+                'USER': parsed_db_url.username or '',
+                'PASSWORD': parsed_db_url.password or '',
+                'HOST': parsed_db_url.hostname or 'localhost',
+                'PORT': str(parsed_db_url.port or 5432),
+                'CONN_MAX_AGE': int(os.getenv('DB_CONN_MAX_AGE', 600)),
+            }
         }
-    }
+    else:
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.postgresql',
+                'NAME': os.getenv('DB_NAME', 'jobboard_db'),
+                'USER': os.getenv('DB_USER', 'jobboard_user'),
+                'PASSWORD': os.getenv('DB_PASSWORD', 'jobboard_secure_password_123!'),
+                'HOST': os.getenv('DB_HOST', 'localhost'),
+                'PORT': os.getenv('DB_PORT', '5432'),
+                'CONN_MAX_AGE': int(os.getenv('DB_CONN_MAX_AGE', 600)),
+            }
+        }
 else:
     DATABASES = {
         'default': {
@@ -131,6 +180,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Media files (Uploads)
 MEDIA_URL = '/media/'
@@ -200,9 +250,23 @@ CSRF_TRUSTED_ORIGINS = [
     ).split(',') if origin.strip()
 ]
 
-# Security Headers
+# Security Headers & HTTPS Configuration
 SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = 'DENY'
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+# HTTPS Cookies & Transport Security
+SESSION_COOKIE_SECURE = not DEBUG or (os.getenv('SESSION_COOKIE_SECURE', 'False').lower() in ('true', '1', 't'))
+CSRF_COOKIE_SECURE = not DEBUG or (os.getenv('CSRF_COOKIE_SECURE', 'False').lower() in ('true', '1', 't'))
+SESSION_COOKIE_HTTPONLY = True
+CSRF_COOKIE_HTTPONLY = False
+SESSION_COOKIE_SAMESITE = 'Lax'
+CSRF_COOKIE_SAMESITE = 'Lax'
+
+SECURE_SSL_REDIRECT = os.getenv('SECURE_SSL_REDIRECT', 'False' if DEBUG else 'True').lower() in ('true', '1', 't')
+SECURE_HSTS_SECONDS = int(os.getenv('SECURE_HSTS_SECONDS', 31536000 if not DEBUG else 0))
+SECURE_HSTS_INCLUDE_SUBDOMAINS = not DEBUG
+SECURE_HSTS_PRELOAD = not DEBUG
 
 # Spectacular Settings (Swagger / OpenAPI)
 SPECTACULAR_SETTINGS = {

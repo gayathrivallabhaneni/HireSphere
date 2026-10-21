@@ -2,6 +2,7 @@
 Serializers for Admin Portal operations.
 """
 from rest_framework import serializers
+from drf_spectacular.utils import extend_schema_field
 from accounts.models import User
 from companies.models import Company
 from jobs.models import Job
@@ -19,6 +20,7 @@ class AdminUserManageSerializer(serializers.ModelSerializer):
             'created_at', 'company_name'
         ]
 
+    @extend_schema_field(serializers.CharField(allow_null=True))
     def get_company_name(self, obj):
         if obj.role == User.Role.RECRUITER and hasattr(obj, 'recruiter_profile') and obj.recruiter_profile.company:
             return obj.recruiter_profile.company.name
@@ -37,9 +39,11 @@ class AdminCompanyManageSerializer(serializers.ModelSerializer):
             'is_active', 'created_at', 'recruiters_count', 'jobs_count'
         ]
 
+    @extend_schema_field(serializers.IntegerField)
     def get_recruiters_count(self, obj):
         return obj.recruiters.count()
 
+    @extend_schema_field(serializers.IntegerField)
     def get_jobs_count(self, obj):
         return obj.jobs.count()
 

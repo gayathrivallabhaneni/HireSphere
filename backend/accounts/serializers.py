@@ -5,6 +5,7 @@ from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.contrib.auth import get_user_model
 from django.db import transaction
+from drf_spectacular.utils import extend_schema_field
 from companies.models import Company, RecruiterProfile
 from candidates.models import CandidateProfile
 
@@ -23,9 +24,11 @@ class UserSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ['id', 'email', 'role', 'created_at', 'company_details']
 
+    @extend_schema_field(serializers.CharField)
     def get_full_name(self, obj):
         return f"{obj.first_name} {obj.last_name}".strip() or obj.email
 
+    @extend_schema_field(serializers.DictField)
     def get_company_details(self, obj):
         if obj.role == User.Role.RECRUITER and hasattr(obj, 'recruiter_profile') and obj.recruiter_profile.company:
             comp = obj.recruiter_profile.company

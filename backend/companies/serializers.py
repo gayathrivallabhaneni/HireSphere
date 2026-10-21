@@ -2,6 +2,7 @@
 Serializers for Company and Recruiter profiles.
 """
 from rest_framework import serializers
+from drf_spectacular.utils import extend_schema_field
 from .models import Company, RecruiterProfile
 from accounts.models import User
 
@@ -17,6 +18,7 @@ class CompanySerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ['id', 'slug', 'is_verified', 'is_active', 'created_at', 'updated_at', 'active_jobs_count']
 
+    @extend_schema_field(serializers.IntegerField)
     def get_active_jobs_count(self, obj):
         return obj.jobs.filter(status='PUBLISHED').count()
 

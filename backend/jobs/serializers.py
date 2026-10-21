@@ -2,6 +2,7 @@
 Serializers for Job model.
 """
 from rest_framework import serializers
+from drf_spectacular.utils import extend_schema_field
 from .models import Job
 from companies.serializers import CompanySerializer
 from applications.models import JobApplication
@@ -36,6 +37,7 @@ class JobPublicDetailSerializer(serializers.ModelSerializer):
             'has_applied', 'recruiter_name'
         ]
 
+    @extend_schema_field(serializers.BooleanField)
     def get_has_applied(self, obj):
         request = self.context.get('request')
         if request and request.user.is_authenticated and request.user.role == 'CANDIDATE':

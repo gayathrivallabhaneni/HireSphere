@@ -4,6 +4,7 @@ Serializers for Job Applications, Status History, and Recruiter Notes.
 from rest_framework import serializers
 from django.db import transaction
 from django.db.models import F
+from drf_spectacular.utils import extend_schema_field
 from .models import JobApplication, ApplicationStatusHistory, RecruiterNote
 from jobs.models import Job
 from candidates.models import Resume, CandidateProfile
@@ -123,10 +124,12 @@ class RecruiterApplicationListSerializer(serializers.ModelSerializer):
             'resume', 'notes_count'
         ]
 
+    @extend_schema_field(serializers.CharField)
     def get_candidate_headline(self, obj):
         profile = getattr(obj.candidate, 'candidate_profile', None)
         return profile.headline if profile else ''
 
+    @extend_schema_field(serializers.IntegerField)
     def get_notes_count(self, obj):
         return obj.notes.count()
 
@@ -151,6 +154,7 @@ class RecruiterApplicationDetailSerializer(serializers.ModelSerializer):
             'status_history', 'notes'
         ]
 
+    @extend_schema_field(serializers.DictField)
     def get_candidate_profile(self, obj):
         profile = getattr(obj.candidate, 'candidate_profile', None)
         if profile:
