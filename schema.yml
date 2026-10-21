@@ -1,0 +1,2947 @@
+openapi: 3.0.3
+info:
+  title: Multi-Vendor Job Board & Application Portal API
+  version: 1.0.0
+  description: Robust REST APIs for multi-vendor job board with Candidate, Recruiter,
+    and Admin portals.
+paths:
+  /api/admin-portal/companies/:
+    get:
+      operationId: admin_portal_companies_list
+      description: List and filter all companies on the platform.
+      parameters:
+      - in: query
+        name: is_active
+        schema:
+          type: boolean
+      - in: query
+        name: is_verified
+        schema:
+          type: boolean
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - admin-portal
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedAdminCompanyManageList'
+          description: ''
+  /api/admin-portal/companies/{id}/toggle-active/:
+    patch:
+      operationId: admin_portal_companies_toggle_active_partial_update
+      description: Activate or deactivate a company and its jobs.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - admin-portal
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/admin-portal/companies/{id}/verify/:
+    patch:
+      operationId: admin_portal_companies_verify_partial_update
+      description: Verify or unverify a company profile.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - admin-portal
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/admin-portal/jobs/:
+    get:
+      operationId: admin_portal_jobs_list
+      description: List and moderate all jobs across the platform.
+      parameters:
+      - in: query
+        name: experience_level
+        schema:
+          type: string
+          enum:
+          - ENTRY
+          - EXECUTIVE
+          - LEAD
+          - MID
+          - SENIOR
+        description: |-
+          * `ENTRY` - Entry Level (0-2 yrs)
+          * `MID` - Mid Level (2-5 yrs)
+          * `SENIOR` - Senior Level (5-8 yrs)
+          * `LEAD` - Lead / Staff (8+ yrs)
+          * `EXECUTIVE` - Executive / Director
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - in: query
+        name: status
+        schema:
+          type: string
+          enum:
+          - ARCHIVED
+          - CLOSED
+          - DRAFT
+          - PUBLISHED
+        description: |-
+          * `DRAFT` - Draft
+          * `PUBLISHED` - Published
+          * `CLOSED` - Closed
+          * `ARCHIVED` - Archived
+      - in: query
+        name: work_mode
+        schema:
+          type: string
+          enum:
+          - HYBRID
+          - ON_SITE
+          - REMOTE
+        description: |-
+          * `ON_SITE` - On-site
+          * `REMOTE` - Remote
+          * `HYBRID` - Hybrid
+      tags:
+      - admin-portal
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedAdminJobManageList'
+          description: ''
+  /api/admin-portal/jobs/{id}/moderate/:
+    patch:
+      operationId: admin_portal_jobs_moderate_partial_update
+      description: Deactivate or archive an inappropriate job posting.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - admin-portal
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/admin-portal/stats/:
+    get:
+      operationId: admin_portal_stats_retrieve
+      description: High-level platform metrics for administrators.
+      tags:
+      - admin-portal
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/admin-portal/users/:
+    get:
+      operationId: admin_portal_users_list
+      description: List and filter all users on the platform.
+      parameters:
+      - in: query
+        name: is_active
+        schema:
+          type: boolean
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - in: query
+        name: role
+        schema:
+          type: string
+          enum:
+          - ADMIN
+          - CANDIDATE
+          - RECRUITER
+        description: |-
+          * `CANDIDATE` - Candidate
+          * `RECRUITER` - Recruiter / Employer
+          * `ADMIN` - Administrator
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - admin-portal
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedAdminUserManageList'
+          description: ''
+  /api/admin-portal/users/{id}/toggle-active/:
+    patch:
+      operationId: admin_portal_users_toggle_active_partial_update
+      description: Activate or suspend a user account.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - admin-portal
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/applications/apply/:
+    post:
+      operationId: applications_apply_create
+      description: Candidate submits an application to an active job opening.
+      tags:
+      - applications
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JobApplicationCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/JobApplicationCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/JobApplicationCreateRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobApplicationCreate'
+          description: ''
+  /api/applications/candidate/dashboard-stats/:
+    get:
+      operationId: applications_candidate_dashboard_stats_retrieve
+      description: Metrics and breakdown for Candidate Dashboard.
+      tags:
+      - applications
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/applications/candidate/my-applications/:
+    get:
+      operationId: applications_candidate_my_applications_list
+      description: List all applications submitted by authenticated candidate.
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      tags:
+      - applications
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedCandidateApplicationListList'
+          description: ''
+  /api/applications/candidate/my-applications/{id}/:
+    get:
+      operationId: applications_candidate_my_applications_retrieve
+      description: |-
+        Retrieve single application details and status audit history for candidate.
+        Never exposes recruiter notes.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - applications
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CandidateApplicationDetail'
+          description: ''
+  /api/applications/candidate/my-applications/{id}/withdraw/:
+    post:
+      operationId: applications_candidate_my_applications_withdraw_create
+      description: |-
+        Allow candidate to withdraw their application.
+        Permitted if application is in APPLIED or UNDER_REVIEW status.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - applications
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/applications/recruiter/applications/:
+    get:
+      operationId: applications_recruiter_applications_list
+      description: |-
+        List applications submitted to recruiter company's jobs.
+        Filterable by job_id, status, search candidate name/email.
+      parameters:
+      - in: query
+        name: job
+        schema:
+          type: integer
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - in: query
+        name: status
+        schema:
+          type: string
+          enum:
+          - APPLIED
+          - INTERVIEW_SCHEDULED
+          - OFFERED
+          - REJECTED
+          - SHORTLISTED
+          - UNDER_REVIEW
+          - WITHDRAWN
+        description: |-
+          * `APPLIED` - Applied
+          * `UNDER_REVIEW` - Under Review
+          * `SHORTLISTED` - Shortlisted
+          * `INTERVIEW_SCHEDULED` - Interview Scheduled
+          * `OFFERED` - Offered
+          * `REJECTED` - Rejected
+          * `WITHDRAWN` - Withdrawn
+      tags:
+      - applications
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedRecruiterApplicationListList'
+          description: ''
+  /api/applications/recruiter/applications/{id}/:
+    get:
+      operationId: applications_recruiter_applications_retrieve
+      description: Detailed candidate application review for recruiter, including
+        status history and notes.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - applications
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecruiterApplicationDetail'
+          description: ''
+  /api/applications/recruiter/applications/{id}/notes/:
+    get:
+      operationId: applications_recruiter_applications_notes_list
+      description: List and add private recruiter notes for an application.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - applications
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedRecruiterNoteList'
+          description: ''
+    post:
+      operationId: applications_recruiter_applications_notes_create
+      description: List and add private recruiter notes for an application.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - applications
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RecruiterNoteRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/RecruiterNoteRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/RecruiterNoteRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecruiterNote'
+          description: ''
+  /api/applications/recruiter/applications/{id}/status/:
+    post:
+      operationId: applications_recruiter_applications_status_create
+      description: Update candidate application status with audit trail.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - applications
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/applications/recruiter/dashboard-stats/:
+    get:
+      operationId: applications_recruiter_dashboard_stats_retrieve
+      description: Metrics and breakdown for Recruiter Dashboard.
+      tags:
+      - applications
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/auth/change-password/:
+    post:
+      operationId: auth_change_password_create
+      description: Change password for authenticated user.
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChangePasswordRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ChangePasswordRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ChangePasswordRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+  /api/auth/login/:
+    post:
+      operationId: auth_login_create
+      description: Login endpoint returning JWT access & refresh tokens along with
+        user and company metadata.
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomTokenObtainPairRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CustomTokenObtainPairRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CustomTokenObtainPairRequest'
+        required: true
+      responses:
+        '200':
+          description: No response body
+  /api/auth/me/:
+    get:
+      operationId: auth_me_retrieve
+      description: Retrieve or update currently logged-in user profile.
+      tags:
+      - auth
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+    put:
+      operationId: auth_me_update
+      description: Retrieve or update currently logged-in user profile.
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserProfileUpdateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UserProfileUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserProfileUpdateRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfileUpdate'
+          description: ''
+    patch:
+      operationId: auth_me_partial_update
+      description: Retrieve or update currently logged-in user profile.
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedUserProfileUpdateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedUserProfileUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedUserProfileUpdateRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfileUpdate'
+          description: ''
+  /api/auth/register/:
+    post:
+      operationId: auth_register_create
+      description: Register a new Candidate or Recruiter user.
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Register'
+          description: ''
+  /api/auth/token/refresh/:
+    post:
+      operationId: auth_token_refresh_create
+      description: |-
+        Takes a refresh type JSON web token and returns an access type JSON web
+        token if the refresh token is valid.
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenRefreshRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenRefreshRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenRefreshRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenRefresh'
+          description: ''
+  /api/candidates/profile/:
+    get:
+      operationId: candidates_profile_retrieve
+      description: Retrieve or update authenticated candidate's profile.
+      tags:
+      - candidates
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+    put:
+      operationId: candidates_profile_update
+      description: Retrieve or update authenticated candidate's profile.
+      tags:
+      - candidates
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+    patch:
+      operationId: candidates_profile_partial_update
+      description: Retrieve or update authenticated candidate's profile.
+      tags:
+      - candidates
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/candidates/resumes/:
+    get:
+      operationId: candidates_resumes_list
+      description: List candidate's uploaded resumes or upload a new resume.
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - candidates
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedResumeList'
+          description: ''
+    post:
+      operationId: candidates_resumes_create
+      description: List candidate's uploaded resumes or upload a new resume.
+      tags:
+      - candidates
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ResumeUploadRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ResumeUploadRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResumeUpload'
+          description: ''
+  /api/candidates/resumes/{id}/:
+    get:
+      operationId: candidates_resumes_retrieve
+      description: Retrieve details or delete a candidate's resume.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - candidates
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resume'
+          description: ''
+    delete:
+      operationId: candidates_resumes_destroy
+      description: Retrieve details or delete a candidate's resume.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - candidates
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/candidates/resumes/{id}/download/:
+    get:
+      operationId: candidates_resumes_download_retrieve
+      description: |-
+        Secure endpoint for downloading a candidate resume.
+        Access is granted ONLY to:
+        1. The candidate who owns the resume.
+        2. A recruiter belonging to a company where the candidate submitted an application referencing this resume.
+        3. Platform administrators.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - candidates
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/candidates/resumes/{id}/set-primary/:
+    post:
+      operationId: candidates_resumes_set_primary_create
+      description: Set a specific resume as primary.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - candidates
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/companies/:
+    get:
+      operationId: companies_list
+      description: Public listing of active companies with job openings.
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - companies
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedCompanyList'
+          description: ''
+  /api/companies/{slug}/:
+    get:
+      operationId: companies_retrieve
+      description: Public company profile details by slug.
+      parameters:
+      - in: path
+        name: slug
+        schema:
+          type: string
+        required: true
+      tags:
+      - companies
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Company'
+          description: ''
+  /api/companies/my-company/:
+    get:
+      operationId: companies_my_company_retrieve
+      description: Retrieve or update the authenticated recruiter's company profile.
+      tags:
+      - companies
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+    put:
+      operationId: companies_my_company_update
+      description: Retrieve or update the authenticated recruiter's company profile.
+      tags:
+      - companies
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+    patch:
+      operationId: companies_my_company_partial_update
+      description: Retrieve or update the authenticated recruiter's company profile.
+      tags:
+      - companies
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/companies/my-recruiters/:
+    get:
+      operationId: companies_my_recruiters_list
+      description: List all recruiters associated with the requesting recruiter's
+        company.
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - companies
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedRecruiterProfileList'
+          description: ''
+  /api/jobs/:
+    get:
+      operationId: jobs_list
+      description: |-
+        Public job search and discovery endpoint.
+        Filters: keyword search, location, experience_level, employment_type, work_mode, salary range.
+      parameters:
+      - in: query
+        name: company
+        schema:
+          type: string
+      - in: query
+        name: employment_type
+        schema:
+          type: string
+          enum:
+          - CONTRACT
+          - FULL_TIME
+          - INTERNSHIP
+          - PART_TIME
+        description: |-
+          * `FULL_TIME` - Full-time
+          * `PART_TIME` - Part-time
+          * `CONTRACT` - Contract
+          * `INTERNSHIP` - Internship
+      - in: query
+        name: experience_level
+        schema:
+          type: string
+          enum:
+          - ENTRY
+          - EXECUTIVE
+          - LEAD
+          - MID
+          - SENIOR
+        description: |-
+          * `ENTRY` - Entry Level (0-2 yrs)
+          * `MID` - Mid Level (2-5 yrs)
+          * `SENIOR` - Senior Level (5-8 yrs)
+          * `LEAD` - Lead / Staff (8+ yrs)
+          * `EXECUTIVE` - Executive / Director
+      - in: query
+        name: is_featured
+        schema:
+          type: boolean
+      - in: query
+        name: location
+        schema:
+          type: string
+      - in: query
+        name: max_salary
+        schema:
+          type: integer
+      - in: query
+        name: min_salary
+        schema:
+          type: integer
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - in: query
+        name: search
+        schema:
+          type: string
+      - in: query
+        name: work_mode
+        schema:
+          type: string
+          enum:
+          - HYBRID
+          - ON_SITE
+          - REMOTE
+        description: |-
+          * `ON_SITE` - On-site
+          * `REMOTE` - Remote
+          * `HYBRID` - Hybrid
+      tags:
+      - jobs
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedJobPublicListList'
+          description: ''
+  /api/jobs/{slug}/:
+    get:
+      operationId: jobs_retrieve
+      description: |-
+        Public job detail view by slug.
+        Increments views_count automatically.
+      parameters:
+      - in: path
+        name: slug
+        schema:
+          type: string
+        required: true
+      tags:
+      - jobs
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobPublicDetail'
+          description: ''
+  /api/jobs/recruiter/:
+    get:
+      operationId: jobs_recruiter_list
+      description: |-
+        List jobs belonging to recruiter's company or create a new job opening.
+        Enforces strict company data isolation.
+      parameters:
+      - in: query
+        name: employment_type
+        schema:
+          type: string
+          enum:
+          - CONTRACT
+          - FULL_TIME
+          - INTERNSHIP
+          - PART_TIME
+        description: |-
+          * `FULL_TIME` - Full-time
+          * `PART_TIME` - Part-time
+          * `CONTRACT` - Contract
+          * `INTERNSHIP` - Internship
+      - in: query
+        name: experience_level
+        schema:
+          type: string
+          enum:
+          - ENTRY
+          - EXECUTIVE
+          - LEAD
+          - MID
+          - SENIOR
+        description: |-
+          * `ENTRY` - Entry Level (0-2 yrs)
+          * `MID` - Mid Level (2-5 yrs)
+          * `SENIOR` - Senior Level (5-8 yrs)
+          * `LEAD` - Lead / Staff (8+ yrs)
+          * `EXECUTIVE` - Executive / Director
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - in: query
+        name: status
+        schema:
+          type: string
+          enum:
+          - ARCHIVED
+          - CLOSED
+          - DRAFT
+          - PUBLISHED
+        description: |-
+          * `DRAFT` - Draft
+          * `PUBLISHED` - Published
+          * `CLOSED` - Closed
+          * `ARCHIVED` - Archived
+      tags:
+      - jobs
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedRecruiterJobManageList'
+          description: ''
+    post:
+      operationId: jobs_recruiter_create
+      description: |-
+        List jobs belonging to recruiter's company or create a new job opening.
+        Enforces strict company data isolation.
+      tags:
+      - jobs
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JobCreateUpdateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/JobCreateUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/JobCreateUpdateRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobCreateUpdate'
+          description: ''
+  /api/jobs/recruiter/{id}/:
+    get:
+      operationId: jobs_recruiter_retrieve
+      description: |-
+        Retrieve, update or delete a job opening.
+        Recruiter must belong to the same company.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - jobs
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobPublicDetail'
+          description: ''
+    put:
+      operationId: jobs_recruiter_update
+      description: |-
+        Retrieve, update or delete a job opening.
+        Recruiter must belong to the same company.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - jobs
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JobCreateUpdateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/JobCreateUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/JobCreateUpdateRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobCreateUpdate'
+          description: ''
+    patch:
+      operationId: jobs_recruiter_partial_update
+      description: |-
+        Retrieve, update or delete a job opening.
+        Recruiter must belong to the same company.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - jobs
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedJobCreateUpdateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedJobCreateUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedJobCreateUpdateRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobCreateUpdate'
+          description: ''
+    delete:
+      operationId: jobs_recruiter_destroy
+      description: |-
+        Retrieve, update or delete a job opening.
+        Recruiter must belong to the same company.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - jobs
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/jobs/recruiter/{id}/status/:
+    patch:
+      operationId: jobs_recruiter_status_partial_update
+      description: Quickly toggle or change job status (e.g. PUBLISHED, CLOSED, ARCHIVED,
+        DRAFT).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - jobs
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+components:
+  schemas:
+    AdminCompanyManage:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 255
+        slug:
+          oneOf:
+          - type: string
+            maxLength: 255
+            pattern: ^[-a-zA-Z0-9_]+$
+          - type: string
+            maxLength: 0
+        logo:
+          type: string
+          format: uri
+          nullable: true
+        website:
+          oneOf:
+          - type: string
+            format: uri
+            maxLength: 300
+          - type: string
+            maxLength: 0
+        industry:
+          type: string
+          maxLength: 150
+        location:
+          type: string
+          maxLength: 255
+        description:
+          type: string
+        size:
+          $ref: '#/components/schemas/SizeEnum'
+        is_verified:
+          type: boolean
+        is_active:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        recruiters_count:
+          type: string
+          readOnly: true
+        jobs_count:
+          type: string
+          readOnly: true
+      required:
+      - created_at
+      - description
+      - id
+      - industry
+      - jobs_count
+      - location
+      - name
+      - recruiters_count
+    AdminJobManage:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        title:
+          type: string
+          maxLength: 255
+        slug:
+          oneOf:
+          - type: string
+            maxLength: 300
+            pattern: ^[-a-zA-Z0-9_]+$
+          - type: string
+            maxLength: 0
+        company_name:
+          type: string
+          readOnly: true
+        recruiter_email:
+          type: string
+          format: email
+          readOnly: true
+        location:
+          type: string
+          maxLength: 255
+        work_mode:
+          $ref: '#/components/schemas/WorkModeEnum'
+        employment_type:
+          $ref: '#/components/schemas/EmploymentTypeEnum'
+        experience_level:
+          $ref: '#/components/schemas/ExperienceLevelEnum'
+        status:
+          $ref: '#/components/schemas/Status21dEnum'
+        applications_count:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        views_count:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        is_featured:
+          type: boolean
+      required:
+      - company_name
+      - created_at
+      - id
+      - location
+      - recruiter_email
+      - title
+    AdminUserManage:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        email:
+          type: string
+          format: email
+          title: Email address
+          maxLength: 254
+        full_name:
+          type: string
+          readOnly: true
+        first_name:
+          type: string
+          maxLength: 150
+        last_name:
+          type: string
+          maxLength: 150
+        role:
+          $ref: '#/components/schemas/RoleEnum'
+        phone_number:
+          type: string
+          maxLength: 25
+        is_active:
+          type: boolean
+          title: Active
+          description: Designates whether this user should be treated as active. Unselect
+            this instead of deleting accounts.
+        is_staff:
+          type: boolean
+          title: Staff status
+          description: Designates whether the user can log into this admin site.
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        company_name:
+          type: string
+          readOnly: true
+      required:
+      - company_name
+      - created_at
+      - email
+      - full_name
+      - id
+    ApplicationStatusHistory:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        from_status:
+          type: string
+          maxLength: 30
+        to_status:
+          type: string
+          maxLength: 30
+        changed_by_name:
+          type: string
+          readOnly: true
+        notes:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - changed_by_name
+      - created_at
+      - from_status
+      - id
+      - to_status
+    CandidateApplicationDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        job:
+          allOf:
+          - $ref: '#/components/schemas/JobPublicList'
+          readOnly: true
+        resume:
+          allOf:
+          - $ref: '#/components/schemas/Resume'
+          readOnly: true
+        cover_letter:
+          type: string
+        status:
+          $ref: '#/components/schemas/StatusDbbEnum'
+        applied_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        status_history:
+          type: array
+          items:
+            $ref: '#/components/schemas/ApplicationStatusHistory'
+          readOnly: true
+      required:
+      - applied_at
+      - id
+      - job
+      - resume
+      - status_history
+      - updated_at
+    CandidateApplicationList:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        job:
+          allOf:
+          - $ref: '#/components/schemas/JobPublicList'
+          readOnly: true
+        resume:
+          allOf:
+          - $ref: '#/components/schemas/Resume'
+          readOnly: true
+        status:
+          $ref: '#/components/schemas/StatusDbbEnum'
+        applied_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - applied_at
+      - id
+      - job
+      - resume
+      - updated_at
+    ChangePasswordRequest:
+      type: object
+      properties:
+        old_password:
+          type: string
+          minLength: 1
+        new_password:
+          type: string
+          minLength: 8
+        new_password_confirm:
+          type: string
+          minLength: 1
+      required:
+      - new_password
+      - new_password_confirm
+      - old_password
+    Company:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 255
+        slug:
+          type: string
+          readOnly: true
+          pattern: ^[-a-zA-Z0-9_]+$
+        logo:
+          type: string
+          format: uri
+          nullable: true
+        website:
+          oneOf:
+          - type: string
+            format: uri
+            maxLength: 300
+          - type: string
+            maxLength: 0
+        industry:
+          type: string
+          maxLength: 150
+        location:
+          type: string
+          maxLength: 255
+        description:
+          type: string
+        size:
+          $ref: '#/components/schemas/SizeEnum'
+        is_verified:
+          type: boolean
+          readOnly: true
+        is_active:
+          type: boolean
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        active_jobs_count:
+          type: string
+          readOnly: true
+      required:
+      - active_jobs_count
+      - created_at
+      - description
+      - id
+      - industry
+      - is_active
+      - is_verified
+      - location
+      - name
+      - slug
+      - updated_at
+    CustomTokenObtainPairRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          writeOnly: true
+          minLength: 1
+        password:
+          type: string
+          writeOnly: true
+          minLength: 1
+      required:
+      - email
+      - password
+    EmploymentTypeEnum:
+      enum:
+      - FULL_TIME
+      - PART_TIME
+      - CONTRACT
+      - INTERNSHIP
+      type: string
+      description: |-
+        * `FULL_TIME` - Full-time
+        * `PART_TIME` - Part-time
+        * `CONTRACT` - Contract
+        * `INTERNSHIP` - Internship
+    ExperienceLevelEnum:
+      enum:
+      - ENTRY
+      - MID
+      - SENIOR
+      - LEAD
+      - EXECUTIVE
+      type: string
+      description: |-
+        * `ENTRY` - Entry Level (0-2 yrs)
+        * `MID` - Mid Level (2-5 yrs)
+        * `SENIOR` - Senior Level (5-8 yrs)
+        * `LEAD` - Lead / Staff (8+ yrs)
+        * `EXECUTIVE` - Executive / Director
+    JobApplicationCreate:
+      type: object
+      properties:
+        job_id:
+          type: integer
+        resume_id:
+          type: integer
+        cover_letter:
+          type: string
+          default: ''
+      required:
+      - job_id
+      - resume_id
+    JobApplicationCreateRequest:
+      type: object
+      properties:
+        job_id:
+          type: integer
+        resume_id:
+          type: integer
+        cover_letter:
+          type: string
+          default: ''
+      required:
+      - job_id
+      - resume_id
+    JobCreateUpdate:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        title:
+          type: string
+          maxLength: 255
+        description:
+          type: string
+          description: Detailed overview of the role
+        responsibilities:
+          type: string
+          description: Key duties and day-to-day responsibilities
+        requirements:
+          type: string
+          description: Candidate qualifications and background
+        skills:
+          description: Required or preferred technologies and skills
+        experience_level:
+          $ref: '#/components/schemas/ExperienceLevelEnum'
+        employment_type:
+          $ref: '#/components/schemas/EmploymentTypeEnum'
+        work_mode:
+          $ref: '#/components/schemas/WorkModeEnum'
+        location:
+          type: string
+          maxLength: 255
+        min_salary:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          nullable: true
+        max_salary:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          nullable: true
+        currency:
+          type: string
+          maxLength: 10
+        status:
+          $ref: '#/components/schemas/Status21dEnum'
+        closing_date:
+          type: string
+          format: date
+          nullable: true
+        is_featured:
+          type: boolean
+      required:
+      - description
+      - id
+      - location
+      - requirements
+      - responsibilities
+      - title
+    JobCreateUpdateRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 255
+        description:
+          type: string
+          minLength: 1
+          description: Detailed overview of the role
+        responsibilities:
+          type: string
+          minLength: 1
+          description: Key duties and day-to-day responsibilities
+        requirements:
+          type: string
+          minLength: 1
+          description: Candidate qualifications and background
+        skills:
+          description: Required or preferred technologies and skills
+        experience_level:
+          $ref: '#/components/schemas/ExperienceLevelEnum'
+        employment_type:
+          $ref: '#/components/schemas/EmploymentTypeEnum'
+        work_mode:
+          $ref: '#/components/schemas/WorkModeEnum'
+        location:
+          type: string
+          minLength: 1
+          maxLength: 255
+        min_salary:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          nullable: true
+        max_salary:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          nullable: true
+        currency:
+          type: string
+          minLength: 1
+          maxLength: 10
+        status:
+          $ref: '#/components/schemas/Status21dEnum'
+        closing_date:
+          type: string
+          format: date
+          nullable: true
+        is_featured:
+          type: boolean
+      required:
+      - description
+      - location
+      - requirements
+      - responsibilities
+      - title
+    JobPublicDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        title:
+          type: string
+          maxLength: 255
+        slug:
+          oneOf:
+          - type: string
+            maxLength: 300
+            pattern: ^[-a-zA-Z0-9_]+$
+          - type: string
+            maxLength: 0
+        company:
+          allOf:
+          - $ref: '#/components/schemas/Company'
+          readOnly: true
+        location:
+          type: string
+          maxLength: 255
+        work_mode:
+          $ref: '#/components/schemas/WorkModeEnum'
+        employment_type:
+          $ref: '#/components/schemas/EmploymentTypeEnum'
+        experience_level:
+          $ref: '#/components/schemas/ExperienceLevelEnum'
+        min_salary:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          nullable: true
+        max_salary:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          nullable: true
+        currency:
+          type: string
+          maxLength: 10
+        description:
+          type: string
+          description: Detailed overview of the role
+        responsibilities:
+          type: string
+          description: Key duties and day-to-day responsibilities
+        requirements:
+          type: string
+          description: Candidate qualifications and background
+        skills:
+          description: Required or preferred technologies and skills
+        views_count:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        applications_count:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        closing_date:
+          type: string
+          format: date
+          nullable: true
+        is_featured:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        status:
+          $ref: '#/components/schemas/Status21dEnum'
+        has_applied:
+          type: string
+          readOnly: true
+        recruiter_name:
+          type: string
+          readOnly: true
+      required:
+      - company
+      - created_at
+      - description
+      - has_applied
+      - id
+      - location
+      - recruiter_name
+      - requirements
+      - responsibilities
+      - title
+      - updated_at
+    JobPublicList:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        title:
+          type: string
+          maxLength: 255
+        slug:
+          oneOf:
+          - type: string
+            maxLength: 300
+            pattern: ^[-a-zA-Z0-9_]+$
+          - type: string
+            maxLength: 0
+        company:
+          allOf:
+          - $ref: '#/components/schemas/Company'
+          readOnly: true
+        location:
+          type: string
+          maxLength: 255
+        work_mode:
+          $ref: '#/components/schemas/WorkModeEnum'
+        employment_type:
+          $ref: '#/components/schemas/EmploymentTypeEnum'
+        experience_level:
+          $ref: '#/components/schemas/ExperienceLevelEnum'
+        min_salary:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          nullable: true
+        max_salary:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          nullable: true
+        currency:
+          type: string
+          maxLength: 10
+        is_featured:
+          type: boolean
+        skills:
+          description: Required or preferred technologies and skills
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        closing_date:
+          type: string
+          format: date
+          nullable: true
+      required:
+      - company
+      - created_at
+      - id
+      - location
+      - title
+    PaginatedAdminCompanyManageList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdminCompanyManage'
+    PaginatedAdminJobManageList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdminJobManage'
+    PaginatedAdminUserManageList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdminUserManage'
+    PaginatedCandidateApplicationListList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/CandidateApplicationList'
+    PaginatedCompanyList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Company'
+    PaginatedJobPublicListList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/JobPublicList'
+    PaginatedRecruiterApplicationListList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/RecruiterApplicationList'
+    PaginatedRecruiterJobManageList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/RecruiterJobManage'
+    PaginatedRecruiterNoteList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/RecruiterNote'
+    PaginatedRecruiterProfileList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/RecruiterProfile'
+    PaginatedResumeList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Resume'
+    PatchedJobCreateUpdateRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 255
+        description:
+          type: string
+          minLength: 1
+          description: Detailed overview of the role
+        responsibilities:
+          type: string
+          minLength: 1
+          description: Key duties and day-to-day responsibilities
+        requirements:
+          type: string
+          minLength: 1
+          description: Candidate qualifications and background
+        skills:
+          description: Required or preferred technologies and skills
+        experience_level:
+          $ref: '#/components/schemas/ExperienceLevelEnum'
+        employment_type:
+          $ref: '#/components/schemas/EmploymentTypeEnum'
+        work_mode:
+          $ref: '#/components/schemas/WorkModeEnum'
+        location:
+          type: string
+          minLength: 1
+          maxLength: 255
+        min_salary:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          nullable: true
+        max_salary:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          nullable: true
+        currency:
+          type: string
+          minLength: 1
+          maxLength: 10
+        status:
+          $ref: '#/components/schemas/Status21dEnum'
+        closing_date:
+          type: string
+          format: date
+          nullable: true
+        is_featured:
+          type: boolean
+    PatchedUserProfileUpdateRequest:
+      type: object
+      properties:
+        first_name:
+          type: string
+          maxLength: 150
+        last_name:
+          type: string
+          maxLength: 150
+        phone_number:
+          type: string
+          maxLength: 25
+    RecruiterApplicationDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        job_id:
+          type: integer
+          readOnly: true
+        job_title:
+          type: string
+          readOnly: true
+        candidate_name:
+          type: string
+          readOnly: true
+        candidate_email:
+          type: string
+          format: email
+          readOnly: true
+        candidate_phone:
+          type: string
+          readOnly: true
+        candidate_profile:
+          type: string
+          readOnly: true
+        cover_letter:
+          type: string
+        status:
+          $ref: '#/components/schemas/StatusDbbEnum'
+        applied_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        resume:
+          allOf:
+          - $ref: '#/components/schemas/Resume'
+          readOnly: true
+        status_history:
+          type: array
+          items:
+            $ref: '#/components/schemas/ApplicationStatusHistory'
+          readOnly: true
+        notes:
+          type: array
+          items:
+            $ref: '#/components/schemas/RecruiterNote'
+          readOnly: true
+      required:
+      - applied_at
+      - candidate_email
+      - candidate_name
+      - candidate_phone
+      - candidate_profile
+      - id
+      - job_id
+      - job_title
+      - notes
+      - resume
+      - status_history
+      - updated_at
+    RecruiterApplicationList:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        job_id:
+          type: integer
+          readOnly: true
+        job_title:
+          type: string
+          readOnly: true
+        candidate_name:
+          type: string
+          readOnly: true
+        candidate_email:
+          type: string
+          format: email
+          readOnly: true
+        candidate_headline:
+          type: string
+          readOnly: true
+        status:
+          $ref: '#/components/schemas/StatusDbbEnum'
+        applied_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        resume:
+          allOf:
+          - $ref: '#/components/schemas/Resume'
+          readOnly: true
+        notes_count:
+          type: string
+          readOnly: true
+      required:
+      - applied_at
+      - candidate_email
+      - candidate_headline
+      - candidate_name
+      - id
+      - job_id
+      - job_title
+      - notes_count
+      - resume
+      - updated_at
+    RecruiterJobManage:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        title:
+          type: string
+          maxLength: 255
+        slug:
+          oneOf:
+          - type: string
+            maxLength: 300
+            pattern: ^[-a-zA-Z0-9_]+$
+          - type: string
+            maxLength: 0
+        company_name:
+          type: string
+          readOnly: true
+        location:
+          type: string
+          maxLength: 255
+        work_mode:
+          $ref: '#/components/schemas/WorkModeEnum'
+        employment_type:
+          $ref: '#/components/schemas/EmploymentTypeEnum'
+        experience_level:
+          $ref: '#/components/schemas/ExperienceLevelEnum'
+        min_salary:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          nullable: true
+        max_salary:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          nullable: true
+        currency:
+          type: string
+          maxLength: 10
+        status:
+          $ref: '#/components/schemas/Status21dEnum'
+        applications_count:
+          type: integer
+          readOnly: true
+        views_count:
+          type: integer
+          readOnly: true
+        closing_date:
+          type: string
+          format: date
+          nullable: true
+        is_featured:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - applications_count
+      - company_name
+      - created_at
+      - id
+      - location
+      - title
+      - updated_at
+      - views_count
+    RecruiterNote:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        recruiter_name:
+          type: string
+          readOnly: true
+        note:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - note
+      - recruiter_name
+    RecruiterNoteRequest:
+      type: object
+      properties:
+        note:
+          type: string
+          minLength: 1
+      required:
+      - note
+    RecruiterProfile:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        user:
+          type: integer
+          readOnly: true
+        recruiter_name:
+          type: string
+          readOnly: true
+        recruiter_email:
+          type: string
+          format: email
+          readOnly: true
+        company:
+          allOf:
+          - $ref: '#/components/schemas/Company'
+          readOnly: true
+        title:
+          type: string
+          maxLength: 150
+        is_company_admin:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - company
+      - created_at
+      - id
+      - recruiter_email
+      - recruiter_name
+      - user
+    Register:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          title: Email address
+          maxLength: 254
+        first_name:
+          type: string
+          maxLength: 150
+        last_name:
+          type: string
+          maxLength: 150
+        role:
+          $ref: '#/components/schemas/RoleEnum'
+        phone_number:
+          type: string
+          maxLength: 25
+      required:
+      - email
+    RegisterRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          minLength: 1
+          title: Email address
+          maxLength: 254
+        password:
+          type: string
+          writeOnly: true
+          minLength: 8
+        password_confirm:
+          type: string
+          writeOnly: true
+          minLength: 1
+        first_name:
+          type: string
+          maxLength: 150
+        last_name:
+          type: string
+          maxLength: 150
+        role:
+          $ref: '#/components/schemas/RoleEnum'
+        phone_number:
+          type: string
+          maxLength: 25
+        company_name:
+          type: string
+          writeOnly: true
+        company_industry:
+          type: string
+          writeOnly: true
+        company_location:
+          type: string
+          writeOnly: true
+      required:
+      - email
+      - password
+      - password_confirm
+    Resume:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        title:
+          type: string
+          maxLength: 255
+        original_filename:
+          type: string
+          readOnly: true
+        file_size:
+          type: integer
+          readOnly: true
+          description: File size in bytes
+        file_type:
+          type: string
+          readOnly: true
+        is_primary:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        download_url:
+          type: string
+          readOnly: true
+      required:
+      - created_at
+      - download_url
+      - file_size
+      - file_type
+      - id
+      - original_filename
+      - title
+    ResumeUpload:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        title:
+          type: string
+          maxLength: 255
+        file:
+          type: string
+          format: uri
+        is_primary:
+          type: boolean
+      required:
+      - file
+      - id
+      - title
+    ResumeUploadRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 255
+        file:
+          type: string
+          format: binary
+        is_primary:
+          type: boolean
+      required:
+      - file
+      - title
+    RoleEnum:
+      enum:
+      - CANDIDATE
+      - RECRUITER
+      - ADMIN
+      type: string
+      description: |-
+        * `CANDIDATE` - Candidate
+        * `RECRUITER` - Recruiter / Employer
+        * `ADMIN` - Administrator
+    SizeEnum:
+      enum:
+      - 1-10
+      - 11-50
+      - 51-200
+      - 201-500
+      - 501-1000
+      - 1000+
+      type: string
+      description: |-
+        * `1-10` - 1-10 employees
+        * `11-50` - 11-50 employees
+        * `51-200` - 51-200 employees
+        * `201-500` - 201-500 employees
+        * `501-1000` - 501-1000 employees
+        * `1000+` - 1000+ employees
+    Status21dEnum:
+      enum:
+      - DRAFT
+      - PUBLISHED
+      - CLOSED
+      - ARCHIVED
+      type: string
+      description: |-
+        * `DRAFT` - Draft
+        * `PUBLISHED` - Published
+        * `CLOSED` - Closed
+        * `ARCHIVED` - Archived
+    StatusDbbEnum:
+      enum:
+      - APPLIED
+      - UNDER_REVIEW
+      - SHORTLISTED
+      - INTERVIEW_SCHEDULED
+      - OFFERED
+      - REJECTED
+      - WITHDRAWN
+      type: string
+      description: |-
+        * `APPLIED` - Applied
+        * `UNDER_REVIEW` - Under Review
+        * `SHORTLISTED` - Shortlisted
+        * `INTERVIEW_SCHEDULED` - Interview Scheduled
+        * `OFFERED` - Offered
+        * `REJECTED` - Rejected
+        * `WITHDRAWN` - Withdrawn
+    TokenRefresh:
+      type: object
+      properties:
+        access:
+          type: string
+          readOnly: true
+        refresh:
+          type: string
+      required:
+      - access
+      - refresh
+    TokenRefreshRequest:
+      type: object
+      properties:
+        refresh:
+          type: string
+          minLength: 1
+      required:
+      - refresh
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        email:
+          type: string
+          format: email
+          readOnly: true
+          title: Email address
+        first_name:
+          type: string
+          maxLength: 150
+        last_name:
+          type: string
+          maxLength: 150
+        full_name:
+          type: string
+          readOnly: true
+        role:
+          allOf:
+          - $ref: '#/components/schemas/RoleEnum'
+          readOnly: true
+        phone_number:
+          type: string
+          maxLength: 25
+        is_active:
+          type: boolean
+          title: Active
+          description: Designates whether this user should be treated as active. Unselect
+            this instead of deleting accounts.
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        company_details:
+          type: string
+          readOnly: true
+      required:
+      - company_details
+      - created_at
+      - email
+      - full_name
+      - id
+      - role
+    UserProfileUpdate:
+      type: object
+      properties:
+        first_name:
+          type: string
+          maxLength: 150
+        last_name:
+          type: string
+          maxLength: 150
+        phone_number:
+          type: string
+          maxLength: 25
+    UserProfileUpdateRequest:
+      type: object
+      properties:
+        first_name:
+          type: string
+          maxLength: 150
+        last_name:
+          type: string
+          maxLength: 150
+        phone_number:
+          type: string
+          maxLength: 25
+    WorkModeEnum:
+      enum:
+      - ON_SITE
+      - REMOTE
+      - HYBRID
+      type: string
+      description: |-
+        * `ON_SITE` - On-site
+        * `REMOTE` - Remote
+        * `HYBRID` - Hybrid
+  securitySchemes:
+    jwtAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
