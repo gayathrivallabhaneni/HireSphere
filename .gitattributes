@@ -1,0 +1,6 @@
+# Auto detect text files and perform LF normalization
+* text=auto
+
+# Docker entrypoints must always use LF line endings
+*.sh text eol=lf
+backend/docker-entrypoint.sh text eol=lf
