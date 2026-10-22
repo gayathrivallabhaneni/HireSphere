@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Briefcase, Heart, Shield, Terminal } from 'lucide-react';
 import { GithubIcon } from './SocialIcons';
+import { getApiDocsUrl, getAdminUrl } from '../api/client';
 
 export const Footer = () => {
   return (
@@ -48,12 +49,12 @@ export const Footer = () => {
             <h4 className="text-xs font-semibold text-slate-900 uppercase tracking-wider mb-3">API & Docs</h4>
             <ul className="space-y-2 text-xs text-slate-600">
               <li>
-                <a href="http://localhost:8000/api/docs/" target="_blank" rel="noreferrer" className="flex items-center gap-1 hover:text-indigo-600">
+                <a href={getApiDocsUrl()} target="_blank" rel="noreferrer" className="flex items-center gap-1 hover:text-indigo-600">
                   <Terminal className="w-3.5 h-3.5" /> Swagger OpenAPI
                 </a>
               </li>
               <li>
-                <a href="http://localhost:8000/admin/" target="_blank" rel="noreferrer" className="flex items-center gap-1 hover:text-indigo-600">
+                <a href={getAdminUrl()} target="_blank" rel="noreferrer" className="flex items-center gap-1 hover:text-indigo-600">
                   <Shield className="w-3.5 h-3.5" /> Django Admin
                 </a>
               </li>

@@ -12,7 +12,7 @@ import {
   Terminal,
   ExternalLink
 } from 'lucide-react';
-import api from '../../api/client';
+import api, { getApiDocsUrl, getAdminUrl } from '../../api/client';
 
 export const AdminDashboard = () => {
   const [stats, setStats] = useState(null);
@@ -64,7 +64,7 @@ export const AdminDashboard = () => {
         </div>
         <div className="flex gap-2">
           <a
-            href="http://localhost:8000/admin/"
+            href={getAdminUrl()}
             target="_blank"
             rel="noreferrer"
             className="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 font-semibold text-xs rounded-xl transition flex items-center gap-1.5"
@@ -72,7 +72,7 @@ export const AdminDashboard = () => {
             Django Admin <ExternalLink className="w-3.5 h-3.5" />
           </a>
           <a
-            href="http://localhost:8000/api/docs/"
+            href={getApiDocsUrl()}
             target="_blank"
             rel="noreferrer"
             className="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs rounded-xl transition flex items-center gap-1.5"

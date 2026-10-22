@@ -1,6 +1,48 @@
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
+/**
+ * Normalizes the API base URL to ensure proper endpoint routing.
+ * - Trims whitespace and trailing slashes.
+ * - Guarantees the '/api' suffix is present, whether VITE_API_BASE_URL is set
+ *   to root domain ('https://hiresphere-api-koix.onrender.com') or already includes '/api'.
+ * - Fallbacks to 'http://localhost:8000/api' for local development.
+ */
+export const normalizeApiBaseUrl = (rawUrl) => {
+  if (!rawUrl || typeof rawUrl !== 'string') {
+    return 'http://localhost:8000/api';
+  }
+  const trimmed = rawUrl.trim().replace(/\/+$/, '');
+  if (!trimmed) {
+    return 'http://localhost:8000/api';
+  }
+  if (trimmed.endsWith('/api')) {
+    return trimmed;
+  }
+  return `${trimmed}/api`;
+};
+
+const API_BASE_URL = normalizeApiBaseUrl(import.meta.env.VITE_API_BASE_URL);
+
+/**
+ * Helper to get the base origin of the API backend (without /api suffix)
+ * Useful for linking directly to Django Admin or Swagger Docs.
+ */
+export const getBackendOrigin = () => {
+  if (API_BASE_URL.startsWith('http')) {
+    return API_BASE_URL.replace(/\/api\/?$/, '');
+  }
+  return '';
+};
+
+export const getApiDocsUrl = () => {
+  const origin = getBackendOrigin();
+  return origin ? `${origin}/api/docs/` : '/api/docs/';
+};
+
+export const getAdminUrl = () => {
+  const origin = getBackendOrigin();
+  return origin ? `${origin}/admin/` : '/admin/';
+};
 
 const api = axios.create({
   baseURL: API_BASE_URL,

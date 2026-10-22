@@ -13,6 +13,7 @@ import {
   Search
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { getApiDocsUrl } from '../api/client';
 
 export const Sidebar = () => {
   const { role, user } = useAuth();
@@ -118,7 +119,7 @@ export const Sidebar = () => {
 
         <div className="p-3 bg-slate-50 border border-slate-200/60 rounded-xl text-xs text-slate-500">
           <p className="font-semibold text-slate-700 mb-0.5">Need help?</p>
-          <p className="text-[11px] leading-relaxed">Check Swagger API documentation at <a href="http://localhost:8000/api/docs/" target="_blank" rel="noreferrer" className="text-indigo-600 underline">/api/docs</a></p>
+          <p className="text-[11px] leading-relaxed">Check Swagger API documentation at <a href={getApiDocsUrl()} target="_blank" rel="noreferrer" className="text-indigo-600 underline">/api/docs</a></p>
         </div>
       </aside>
     </>
