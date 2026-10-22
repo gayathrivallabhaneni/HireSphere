@@ -182,12 +182,36 @@ STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# Media files (Uploads)
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+# Media & Resume File Storage
+# In local dev and VPS: Uses local disk/volume under media/
+# In cloud PaaS (Render, Railway, Fly): Automatically activates S3/Cloudflare R2 if configured
+USE_S3 = os.getenv('USE_S3', 'False').lower() in ('true', '1', 't') or bool(os.getenv('AWS_STORAGE_BUCKET_NAME'))
 
-# Dedicated Secure Resumes Directory (Stored outside public static files)
-SECURE_RESUMES_DIR = MEDIA_ROOT / 'resumes'
+if USE_S3:
+    if 'storages' not in INSTALLED_APPS:
+        INSTALLED_APPS.append('storages')
+    AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')
+    AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
+    AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
+    AWS_S3_REGION_NAME = os.getenv('AWS_S3_REGION_NAME', 'us-east-1')
+    AWS_S3_ENDPOINT_URL = os.getenv('AWS_S3_ENDPOINT_URL', None)
+    AWS_S3_FILE_OVERWRITE = False
+    AWS_DEFAULT_ACL = None
+    AWS_QUERYSTRING_AUTH = True
+    STORAGES = {
+        "default": {
+            "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
+        },
+        "staticfiles": {
+            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        },
+    }
+    MEDIA_URL = f"https://{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com/"
+else:
+    MEDIA_URL = '/media/'
+    MEDIA_ROOT = BASE_DIR / 'media'
+    SECURE_RESUMES_DIR = MEDIA_ROOT / 'resumes'
+
 MAX_RESUME_SIZE_MB = int(os.getenv('MAX_RESUME_SIZE_MB', 5))
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

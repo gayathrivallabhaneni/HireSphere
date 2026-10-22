@@ -9,5 +9,6 @@ psycopg2-binary>=2.9.9
 pillow>=10.3.0
 gunicorn>=22.0.0
 whitenoise>=6.8.0
+django-storages[boto3]>=1.14.6
 pytest>=8.2.0
 pytest-django>=4.8.0
